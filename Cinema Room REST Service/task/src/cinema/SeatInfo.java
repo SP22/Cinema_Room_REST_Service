@@ -1,44 +1,58 @@
 package cinema;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SeatInfo {
-    private int total_rows;
-    private int total_columns;
-    private Seat[][] available_seats;
+    private int totalRows;
+    private int totalColumns;
+    private Seat[][] availableSeats;
+    @JsonIgnore
+    private Map<String, Seat> reservedSeats;
 
-    public SeatInfo(int total_rows, int total_columns) {
-        this.total_rows = total_rows;
-        this.total_columns = total_columns;
-        this.available_seats = new Seat[total_rows][total_columns];
-        for (int i = 0; i < total_rows; i++) {
-            for (int j = 0; j < total_columns; j++) {
+    public SeatInfo(int totalRows, int totalColumns) {
+        this.totalRows = totalRows;
+        this.totalColumns = totalColumns;
+        this.availableSeats = new Seat[totalRows][totalColumns];
+        for (int i = 0; i < totalRows; i++) {
+            for (int j = 0; j < totalColumns; j++) {
                 int price = i <= 4 ? 10 : 8;
-                available_seats[i][j] = new Seat(i + 1, j + 1, price);
+                availableSeats[i][j] = new Seat(i + 1, j + 1, price);
             }
         }
+        this.reservedSeats = new HashMap<>();
     }
 
-    public int getTotal_rows() {
-        return total_rows;
+    @JsonProperty("total_rows")
+    public int getTotalRows() {
+        return totalRows;
     }
 
-    public int getTotal_columns() {
-        return total_columns;
+    @JsonProperty("total_columns")
+    public int getTotalColumns() {
+        return totalColumns;
     }
 
-    public Seat[] getAvailable_seats() {
-        return Arrays.stream(available_seats)
-                .flatMap(s -> Arrays.stream(s))
+    @JsonProperty("available_seats")
+    public Seat[] getAvailableSeats() {
+        return Arrays.stream(availableSeats)
+                .flatMap(Arrays::stream)
                 .toList().toArray(Seat[]::new);
     }
 
     public boolean isAvailable(int row, int column) {
-        return available_seats[(row - 1)][column - 1].isAvailable();
+        return availableSeats[(row - 1)][column - 1].isAvailable();
     }
 
     public Seat getSeat(int row, int column) {
-        return available_seats[(row - 1)][column - 1];
+        return availableSeats[(row - 1)][column - 1];
+    }
+
+    public Map<String, Seat> getReservedSeats() {
+        return reservedSeats;
     }
 }
